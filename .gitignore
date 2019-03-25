@@ -83,7 +83,7 @@ typings/
 # DynamoDB Local files
 .dynamodb/
 
-db_conn.js
+creds.js
 
 pokedex/
 
