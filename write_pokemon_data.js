@@ -33,7 +33,7 @@ async function read_pokemon() {
         });
 }
 
-function read_learn_moves(target_data) {
+function read_learn_moves() {
     values = "";
     fs.createReadStream("./pokemon_moves_gen7.csv")
         .pipe(csv())
@@ -44,18 +44,19 @@ function read_learn_moves(target_data) {
                 //prettier-ignore
                 values += `(${data[0]}, ${data[1]}, ${data[2]}, ${data[3]}, ${data[4]}`;
                 values += ")";
-                db.none("INSERT INTO moves VALUES" + values).then(() =>
+                db.none("INSERT INTO moveslearned VALUES" + values).then(() =>
                     console.log("doe")
                 );
+		console.log(values);
             } catch (error) {
                 console.error(error);
             }
         })
         .on("end", function() {
             console.log("done");
-            /*db.none(
+            db.none(
                 "INSERT INTO moves VALUES" + values.slice(0, values.length - 2)
-            ).then(() => console.log("doe"));*/
+            ).then(() => console.log("doe"));
             console.log("done");
             console.log(values);
         });
@@ -203,8 +204,10 @@ async function get_data(pokemon, level) {
     return data;
 }
 
-read_moves();
-/*db.any("SELECT id FROM pokemon")
+//read_moves();
+read_learn_moves();/*
+read_stats();
+db.any("SELECT id FROM pokemon")
     .then(data => {
         for (const id of data) {
             console.log(id.id);
@@ -213,6 +216,6 @@ read_moves();
     })
     .catch(error => {
         throw error;
-    });*/
-
+    });
+*/
 exports.get_data = get_data;
