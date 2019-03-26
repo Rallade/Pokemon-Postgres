@@ -54,3 +54,20 @@ alter table moveslearned
 add constraint moveslearned_move_id_fkey
 foreign key (move_id)
 references moves(id);
+
+CREATE TABLE abilities
+(
+    id SMALLINT PRIMARY KEY,
+    identifier VARCHAR(40),
+    generation_id SMALLINT,
+    is_main_series BOOLEAN
+);
+
+CREATE TABLE abilitieslearned
+(
+    pokemon_id SMALLINT REFERENCES pokemon(id),
+    ability_id SMALLINT REFERENCES abilities(id),
+    is_hidden BOOLEAN,
+    slot SMALLINT,
+    PRIMARY KEY(pokemon_id, ability_id)
+);

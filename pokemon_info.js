@@ -41,6 +41,17 @@ getStatsfromID = async (id, level, EVs, Nature) => {
     return stats;
 };
 
+getAbilitiesfromID = async id => {
+    abilities = await db.any(
+        "SELECT * FROM abilitieslearned WHERE pokemon_id=$1",
+        id
+    );
+    for (const ability of abilities) {
+        delete ability.pokemon_id;
+    }
+    return abilities;
+};
+
 function HP_base_to_stat(base, level, EV) {
     IV = 31;
     stat = (base * 2 + IV + EV / 4) * (level / 100);
@@ -59,9 +70,7 @@ function base_to_stat(base, level, EV, Nature) {
     return stat;
 }
 
-getStatsfromID(475, 50, [4, 252, 0, 0, 0, 252], [1.1, 1, 0.9, 1, 1]).then(
-    data => console.log(data)
-);
+getAbilitiesfromID(475).then(data => console.log(data));
 
 exports.getMovesfromID = getMovesfromID;
 exports.getMovesfromName = getMovesfromName;

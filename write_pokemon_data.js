@@ -153,6 +153,54 @@ function read_stats(id) {
         });
 }
 
+async function read_abilities() {
+    var writes = [];
+    values = "";
+    fs.createReadStream("./abilities.csv")
+        .pipe(csv())
+        .on("data", data => {
+            try {
+                data = Object.values(data);
+                //prettier-ignore
+                values += `(${data[0]}, '${data[1]}', ${data[2]}, '${data[3]}')`;
+                values += ", ";
+            } catch (error) {
+                console.error(error);
+            }
+        })
+        .on("end", function() {
+            db.none(
+                "INSERT INTO abilities VALUES" +
+                    values.slice(0, values.length - 2)
+            ).then("done");
+            console.log(values);
+        });
+}
+
+async function read_abilities_learned() {
+    var writes = [];
+    values = "";
+    fs.createReadStream("./pokemon_abilities.csv")
+        .pipe(csv())
+        .on("data", data => {
+            try {
+                data = Object.values(data);
+                //prettier-ignore
+                values += `(${data[0]}, ${data[1]}, '${data[2]}', ${data[3]})`;
+                values += ", ";
+            } catch (error) {
+                console.error(error);
+            }
+        })
+        .on("end", function() {
+            db.none(
+                "INSERT INTO abilitieslearned VALUES" +
+                    values.slice(0, values.length - 2)
+            ).then("done");
+            console.log(values);
+        });
+}
+
 function HP_base_to_stat(base, level) {
     IV = 31;
     EV = 0;
@@ -189,7 +237,9 @@ async function get_data(pokemon, level) {
 //read_moves();
 //read_learn_moves();
 //read_stats();
-db.any("SELECT id FROM pokemon")
+//read_abilities();
+read_abilities_learned();
+/*db.any("SELECT id FROM pokemon")
     .then(data => {
         for (const id of data) {
             console.log(id.id);
@@ -198,5 +248,5 @@ db.any("SELECT id FROM pokemon")
     })
     .catch(error => {
         throw error;
-    });
+    });*/
 exports.get_data = get_data;
