@@ -201,44 +201,95 @@ async function read_abilities_learned() {
         });
 }
 
-function HP_base_to_stat(base, level) {
-    IV = 31;
-    EV = 0;
-    stat = (base * 2 + IV + EV / 4) * (level / 100);
-    stat = Math.floor(stat);
-    stat += level + 10;
-    return stat;
+async function read_item_categories() {
+    var writes = [];
+    values = "";
+    fs.createReadStream("./item_categories.csv")
+        .pipe(csv())
+        .on("data", data => {
+            try {
+                data = Object.values(data);
+                //prettier-ignore
+                values += `(${data[0]}, ${data[1]}, '${data[2]}')`;
+                values += ", ";
+            } catch (error) {
+                console.error(error);
+            }
+        })
+        .on("end", function() {
+            db.none(
+                "INSERT INTO itemcategories VALUES" +
+                    values.slice(0, values.length - 2)
+            ).then("done");
+            console.log(values);
+        });
 }
 
-function base_to_stat(base, level) {
-    Nature = 1;
-    IV = 31;
-    EV = 0;
-    stat = 2 * base + IV + EV / 4;
-    stat *= level / 100;
-    stat = Math.floor(stat + 5);
-    stat *= Nature;
-    stat = Math.floor(stat);
-    return stat;
+async function read_fling_effects() {
+    var writes = [];
+    values = "";
+    fs.createReadStream("./item_fling_effects.csv")
+        .pipe(csv())
+        .on("data", data => {
+            try {
+                data = Object.values(data);
+                //prettier-ignore
+                values += `(${data[0]}, '${data[1]}')`;
+                values += ", ";
+            } catch (error) {
+                console.error(error);
+            }
+        })
+        .on("end", function() {
+            db.none(
+                "INSERT INTO flingeffects VALUES" +
+                    values.slice(0, values.length - 2)
+            ).then("done");
+            console.log(values);
+        });
 }
 
-async function get_data(pokemon, level) {
-    const sleep = m => new Promise(r => setTimeout(r, m));
-    data = {
-        level,
-        move_ids: [],
-        moves: []
-    };
-    read_pokemon(pokemon);
-    await sleep(2000);
-    return data;
+async function read_items() {
+    var writes = [];
+    let values = "";
+    fs.createReadStream("./items.csv")
+        .pipe(csv())
+        .on("data", datum => {
+            try {
+                //prettier-ignore
+                values += "(";
+                for (key of Object.keys(datum)) {
+                    if (datum[key] == "") {
+                        values += "NULL";
+                    } else if (key == "identifier") {
+                        values += "'" + datum[key] + "'";
+                    } else {
+                        values += datum[key];
+                    }
+                    values += ", ";
+                }
+                values = values.slice(0, values.length - 2);
+                values += "), ";
+            } catch (error) {
+                console.error(error);
+            }
+        })
+        .on("end", function() {
+            db.none(
+                "INSERT INTO items VALUES" + values.slice(0, values.length - 2)
+            ).then("done");
+            console.log(values);
+        });
 }
 
 //read_moves();
 //read_learn_moves();
 //read_stats();
 //read_abilities();
-read_abilities_learned();
+//read_abilities_learned();
+//read_item_categories();
+//read_fling_effects();
+read_items();
 /*db.any("SELECT id FROM pokemon")
     .then(data => {
         for (const id of data) {
@@ -249,4 +300,3 @@ read_abilities_learned();
     .catch(error => {
         throw error;
     });*/
-exports.get_data = get_data;

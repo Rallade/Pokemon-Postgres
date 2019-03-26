@@ -71,3 +71,26 @@ CREATE TABLE abilitieslearned
     slot SMALLINT,
     PRIMARY KEY(pokemon_id, ability_id)
 );
+
+CREATE TABLE itemcategories
+(
+    id SMALLINT PRIMARY KEY,
+    pocket_id SMALLINT,
+    identifier VARCHAR(30)
+);
+
+CREATE TABLE flingeffects
+(
+    id SMALLINT PRIMARY KEY,
+    identifier VARCHAR(30)
+);
+
+create TABLE items
+(
+    id SMALLINT PRIMARY KEY,
+    identifier VARCHAR(40),
+    category_id SMALLINT REFERENCES itemcategories(id),
+    cost INTEGER,
+    fling_power SMALLINT,
+    fling_effect_id SMALLINT REFERENCES flingeffects(id)
+);
