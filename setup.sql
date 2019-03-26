@@ -21,7 +21,7 @@ CREATE TABLE moveslearned
 );
 
 
-CREATE TABLE level50stats
+CREATE TABLE basestats
 (
     pokemon_id SMALLINT REFERENCES pokemon(id),
     HP SMALLINT,
