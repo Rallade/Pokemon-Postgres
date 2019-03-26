@@ -47,7 +47,7 @@ function read_learn_moves() {
                 db.none("INSERT INTO moveslearned VALUES" + values).then(() =>
                     console.log("doe")
                 );
-		console.log(values);
+                console.log(values);
             } catch (error) {
                 console.error(error);
             }
@@ -97,7 +97,7 @@ function read_moves() {
 }
 
 function read_stats(id) {
-    values = { level: 50 };
+    let values = { level: 50 };
     input = fs.createReadStream("./pokemon_stats.csv");
     input
         .pipe(csv())
@@ -106,40 +106,22 @@ function read_stats(id) {
                 if (id == datum.pokemon_id) {
                     switch (datum.stat_id) {
                         case "1":
-                            values.HP = HP_base_to_stat(
-                                parseInt(datum.base_stat),
-                                values.level
-                            );
+                            values.HP = parseInt(datum.base_stat);
                             break;
                         case "2":
-                            values.Attack = base_to_stat(
-                                parseInt(datum.base_stat),
-                                values.level
-                            );
+                            values.Attack = parseInt(datum.base_stat);
                             break;
                         case "3":
-                            values.Defense = base_to_stat(
-                                parseInt(datum.base_stat),
-                                values.level
-                            );
+                            values.Defense = parseInt(datum.base_stat);
                             break;
                         case "4":
-                            values.SpAttack = base_to_stat(
-                                parseInt(datum.base_stat),
-                                values.level
-                            );
+                            values.SpAttack = parseInt(datum.base_stat);
                             break;
                         case "5":
-                            values.SpDefense = base_to_stat(
-                                parseInt(datum.base_stat),
-                                values.level
-                            );
+                            values.SpDefense = parseInt(datum.base_stat);
                             break;
                         case "6":
-                            values.Speed = base_to_stat(
-                                parseInt(datum.base_stat),
-                                values.level
-                            );
+                            values.Speed = parseInt(datum.base_stat);
                             break;
                     }
                 }
@@ -151,7 +133,7 @@ function read_stats(id) {
             delete values.level;
             console.log(id, values);
             db.none(
-                "INSERT INTO level50stats VALUES($1, $2, $3, $4, $5, $6, $7)",
+                "INSERT INTO basestats VALUES($1, $2, $3, $4, $5, $6, $7)",
                 [
                     id,
                     values.HP,
@@ -159,7 +141,7 @@ function read_stats(id) {
                     values.Defense,
                     values.SpAttack,
                     values.SpDefense,
-                    values.Speed,
+                    values.Speed
                 ]
             ).then(() => {
                 console.log("inserted");
@@ -172,9 +154,9 @@ function read_stats(id) {
 }
 
 function HP_base_to_stat(base, level) {
-    IV = 0;
+    IV = 31;
     EV = 0;
-    stat = (base * 2 + IV + (EV / 4) * level) / 100;
+    stat = (base * 2 + IV + EV / 4) * (level / 100);
     stat = Math.floor(stat);
     stat += level + 10;
     return stat;
@@ -182,13 +164,13 @@ function HP_base_to_stat(base, level) {
 
 function base_to_stat(base, level) {
     Nature = 1;
-    IV = 0;
+    IV = 31;
     EV = 0;
     stat = 2 * base + IV + EV / 4;
-    stat *= level;
-    stat /= 100;
-    stat = Math.floor(stat) + 5;
+    stat *= level / 100;
+    stat = Math.floor(stat + 5);
     stat *= Nature;
+    stat = Math.floor(stat);
     return stat;
 }
 
@@ -197,7 +179,7 @@ async function get_data(pokemon, level) {
     data = {
         level,
         move_ids: [],
-        moves: [],
+        moves: []
     };
     read_pokemon(pokemon);
     await sleep(2000);
@@ -205,8 +187,8 @@ async function get_data(pokemon, level) {
 }
 
 //read_moves();
-read_learn_moves();/*
-read_stats();
+//read_learn_moves();
+//read_stats();
 db.any("SELECT id FROM pokemon")
     .then(data => {
         for (const id of data) {
@@ -217,5 +199,4 @@ db.any("SELECT id FROM pokemon")
     .catch(error => {
         throw error;
     });
-*/
 exports.get_data = get_data;
