@@ -68,6 +68,16 @@ getItemInfo = async id => {
     return info;
 };
 
+getRandomTeam = async levels => {
+    //each member cannot be retrieved asnychronously, postgres seems to use the same random
+    //seed between a few requests
+    let team = [];
+    for (let i = 0; i < 6; i++) {
+        team.push(await getRandomPokemon(levels));
+    }
+    return team;
+};
+
 getRandomPokemon = async level => {
     pokemon = await db.one(
         "WITH selectedpokemon AS (SELECT * FROM pokemon JOIN basestats ON pokemon.id = basestats.pokemon_id ORDER BY RANDOM() LIMIT 1) SELECT * FROM abilitieslearned JOIN selectedpokemon ON abilitieslearned.pokemon_id = selectedpokemon.id ORDER BY RANDOM() LIMIT 1"
@@ -78,6 +88,9 @@ getRandomPokemon = async level => {
     Nature = genRandNature();
     pokemon = calcStats(pokemon, level, EVs, Nature);
     pokemon.moves = await getRandomMoves(pokemon.pokemon_id);
+    pokemon.item = await db.one(
+        "SELECT id as item_id, identifier, category_id, fling_power, fling_effect_id FROM ITEMS ORDER BY RANDOM() LIMIT 1"
+    );
     return pokemon;
 };
 
@@ -147,7 +160,7 @@ function base_to_stat(base, level, EV, Nature) {
     return stat;
 }
 
-//getRandomPokemon(50).then(pokemon => console.log(pokemon));
+getRandomTeam(50).then(pokemon => console.log(pokemon));
 
 exports.getMovesfromID = getMovesfromID;
 exports.getMovesfromName = getMovesfromName;

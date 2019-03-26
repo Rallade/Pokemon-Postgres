@@ -94,3 +94,6 @@ create TABLE items
     fling_power SMALLINT,
     fling_effect_id SMALLINT REFERENCES flingeffects(id)
 );
+
+DELETE FROM items WHERE category_id=10 OR category_id=14 OR category_id=1 OR category_id=8 OR category_id=9 OR category_id=11 OR category_id=16 OR category_id=43;
+DELETE FROM items WHERE category_id>19 and category_id<42;
