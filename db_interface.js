@@ -57,7 +57,7 @@ getAbilitiesfromID = async id => {
 
 getAbilityInfo = async id => {
     info = await db.one(
-        "SELECT identifier AS ability FROM abilities WHERE id=$1",
+        "SELECT id as ability_id, identifier AS ability FROM abilities WHERE id=$1",
         id
     );
     return info;
@@ -85,12 +85,15 @@ getRandomPokemon = async level => {
     delete pokemon.is_hidden;
     delete pokemon.slot;
     EVs = genRandEVs();
+    pokemon.EVs = EVs;
     Nature = genRandNature();
+    pokemon.Nature = Nature;
     pokemon = calcStats(pokemon, level, EVs, Nature);
     pokemon.moves = await getRandomMoves(pokemon.pokemon_id);
     pokemon.item = await db.one(
         "SELECT id as item_id, identifier, category_id, fling_power, fling_effect_id FROM ITEMS ORDER BY RANDOM() LIMIT 1"
     );
+    pokemon.level = level;
     return pokemon;
 };
 
@@ -100,6 +103,11 @@ getRandomMoves = async pokemon_id => {
         pokemon_id
     );
     return moves;
+};
+
+getMoveInfo = async move_id => {
+    move = await db.one("SELECT * FROM moves WHERE id=$1", move_id);
+    return move;
 };
 
 function genRandEVs() {
@@ -160,7 +168,7 @@ function base_to_stat(base, level, EV, Nature) {
     return stat;
 }
 
-getRandomTeam(50).then(pokemon => console.log(pokemon));
+//getRandomTeam(50).then(pokemon => console.log(pokemon));
 
 exports.getMovesfromID = getMovesfromID;
 exports.getMovesfromName = getMovesfromName;
@@ -169,3 +177,4 @@ exports.getAbilitiesfromID = getAbilitiesfromID;
 exports.getAbilityInfo = getAbilityInfo;
 exports.getItemInfo = getItemInfo;
 exports.getRandomPokemon = getRandomPokemon;
+exports.getMoveInfo = getMoveInfo;
